@@ -1,111 +1,91 @@
-# LangGraph 기반 RAG Agent 시스템
+# Improved CSV-Based Medicine Search System
 
-의약품 안전성 관련 질문에 답변하는 LangGraph 기반 RAG(Retrieval-Augmented Generation) 시스템입니다.
+본 프로젝트는 의약품 데이터에 기반한 **빠르고 정확한 직접 검색 시스템**입니다. 
+CSV 파일을 기반으로 키워드를 정제·추출하고, 고속 검색을 통해 결과를 도출하며 통계와 요약 정보를 함께 제공합니다.
 
-## 주요 특징
+---
 
-- **무료 모델 사용**: Hugging Face의 무료 모델들을 사용하여 API 키 없이도 작동
-- **LangGraph 기반**: 복잡한 워크플로우를 그래프로 관리
-- **의약품 전문**: 의약품 안전처 및 관련 사이트의 정보를 참고 자료로 활용
-- **한국어 지원**: 한국어 질문과 답변 지원
+## 🧠 주요 기능
 
-## 설치 방법
+- **정제된 키워드 추출**: 한국어 의약품 표현에 특화된 정규표현식을 사용해 의미 있는 키워드만 필터링합니다.
+- **빠른 검색**: 전처리된 검색 컬럼(`search_text`)을 기반으로 고속 검색 수행
+- **자동 통계 분석**: 품목 분류, 업체별, 제형별 요약 제공
+- **보고서 생성**: 최대 15개의 의약품 상세정보와 함께 요약 리포트 생성
+- **검색 캐시 적용**: 동일한 검색 질의에 대해 빠른 응답 속도 제공
 
-1. 필요한 패키지 설치:
+---
+
+## 📁 디렉토리 구성 (예시)
+
+```bash
+📂 improved-medicine-search
+│
+├── improved_csv_search_finalfile.py   # 메인 검색 시스템
+├── requirements.txt                   # 의존 라이브러리 목록
+├── Medical_product_data.csv           # CSV 기반 의약품 데이터 (개별 준비)
+└── README.md                          # 프로젝트 설명 파일 (본 문서)
+```
+
+---
+
+## 🏁 실행 방법
+
+1. 필요한 라이브러리를 설치합니다.
+
 ```bash
 pip install -r requirements.txt
 ```
 
-2. (선택사항) Hugging Face API 키 설정:
-   - `API_KEY.txt` 파일에 Hugging Face API 키를 저장
-   - API 키가 없어도 기본 모델들은 작동합니다
+2. 메인 스크립트를 실행합니다.
 
-## 사용 가능한 모델
-
-- `flan-t5-small`: 가장 안정적이고 빠른 모델 (기본값)
-- `flan-t5-base`: 더 정확한 답변을 제공하는 모델
-- `microsoft-dialo`: 대화형 모델
-- `gpt2`: OpenAI의 GPT-2 모델
-- `distilgpt2`: GPT-2의 경량화 버전
-
-## 사용법
-
-### 1. 기본 테스트
 ```bash
-python rag_agent_example.py
+python improved_csv_search_finalfile.py
 ```
 
-### 2. 대화형 모드
-```bash
-python rag_agent_example.py --interactive
-```
+3. 콘솔에 질문을 입력해 검색을 수행합니다.
 
-### 3. 모델 비교 테스트
-```bash
-python rag_agent_example.py --test-models
-```
-
-### 4. 직접 사용
-```python
-from rag_system import query_rag_agent, change_model
-
-# 질문하기
-result = query_rag_agent("의약품 안전성에 대해 알려주세요")
-print(result['answer'])
-
-# 모델 변경
-change_model("flan-t5-base")
-```
-
-## 시스템 구조
+예시:
 
 ```
-입력 쿼리 → 검색 노드 → 관련 문서 검색 → 답변 생성 노드 → 최종 답변
+질문: 아스피린에 대해 알려줘
+질문: 타이레놀의 주성분은?
+질문: 보건용마스크 제품 알려줘
 ```
 
-1. **검색 노드**: 쿼리를 벡터화하여 관련 문서를 검색
-2. **답변 생성 노드**: 검색된 문서를 기반으로 답변 생성
+---
 
-## 참고 자료 URL
+## 💡 주요 클래스 및 함수 설명
 
-시스템에서 사용하는 의약품 관련 웹사이트들:
-- https://nedrug.mfds.go.kr/index (의약품정보)
-- https://www.health.kr/ (건강정보)
-- https://www.kdra.or.kr/website/index.php (한국약물정보)
-- https://www.druginfo.co.kr/ (약물정보)
-- https://www.mfds.go.kr/ (식약처)
+### `ImprovedCSVDirectSearch`
+- `__init__`: CSV 경로를 받아 검색 시스템 초기화
+- `extract_keywords(query)`: 정규표현식 기반 키워드 추출
+- `fast_search(query)`: 키워드 기반 고속 검색 + 캐시
+- `generate_improved_report(results, keywords)`: 사용자 친화적 통계 요약 리포트 생성
 
-## 파일 구조
+### `query_improved_csv_search(query, search_instance)`
+- 사용자 질문을 입력 받아 시스템에 질의하고 결과 반환
 
-```
-ddd/
-├── rag_system.py          # 메인 RAG 시스템
-├── rag_agent_example.py   # 사용 예시
-├── requirements.txt        # 필요한 패키지 목록
-├── README.md              # 이 파일
-└── chroma_db/            # 벡터 데이터베이스 (자동 생성)
-```
+---
 
-## 주의사항
+## 📝 CSV 데이터 조건
 
-1. **인터넷 연결**: 웹 문서를 로드하기 위해 인터넷 연결이 필요합니다
-2. **처음 실행 시 시간**: 모델 다운로드로 인해 처음 실행 시 시간이 걸릴 수 있습니다
-3. **메모리 사용량**: 큰 모델 사용 시 메모리 사용량이 증가할 수 있습니다
+데이터는 반드시 다음 컬럼들을 포함해야 합니다:
+- `제품명`, `업체명`, `주성분`, `제품영문명`, `주성분영문`, `제형`, `품목분류`, `허가번호` 등
 
-## 문제 해결
+중복 데이터는 `허가번호` 기준으로 자동 제거됩니다.
 
-### 모델 다운로드 오류
-- 인터넷 연결을 확인하세요
-- Hugging Face API 키를 설정해보세요
+---
 
-### 메모리 부족 오류
-- 더 작은 모델을 사용하세요 (flan-t5-small)
-- `device='cpu'` 설정을 확인하세요
+## 🔧 사용된 기술
 
-### 웹 문서 로드 오류
-- URL이 유효한지 확인하세요
-- 네트워크 연결을 확인하세요
+- Python 3.x
+- pandas
+- re (정규표현식)
+- logging
+- scikit-learn (TF-IDF 추출용, 향후 확장 고려)
 
-## 라이선스
+---
 
-이 프로젝트는 교육 및 연구 목적으로 제작되었습니다. 
+## 📜 라이선스
+
+본 프로젝트는 개인 학습 및 비상업적 용도에 한해 자유롭게 사용할 수 있습니다.
