@@ -255,17 +255,23 @@ class ImprovedCSVDirectSearch:
         
         for i, item in enumerate(data[:display_count], 1):
             report_lines.append(f"\n{i}. {item.get('제품명', '제품명 없음')}")
-            report_lines.append(f"   • 업체: {item.get('업체명', '미상')}")
+            report_lines.append(f"   • 업체명: {item.get('업체명', '미상')}")
+            report_lines.append(f"   • 품목구분: {item.get('품목분류', '미상')}")
+            report_lines.append(f"   • 허가번호: {item.get('허가번호', '미상')}")
             
-            main_ingredient = item.get('주성분', '')
-            if main_ingredient:
-                report_lines.append(f"   • 주성분: {main_ingredient}")
+            english_name = item.get('제품영문명', '')
+            if english_name:
+                report_lines.append(f"   • 제품영문명: {english_name}")
             
+            approval_date = item.get('허가일', '')
+            if approval_date:
+                report_lines.append(f"   • 허가일: {approval_date}")
+            
+            # 추가 정보 (기존 정보도 유지)
             form = item.get('제형', '')
             if form:
                 report_lines.append(f"   • 제형: {form}")
             
-            report_lines.append(f"   • 허가번호: {item.get('허가번호', '미상')}")
             report_lines.append(f"   • 전문/일반: {item.get('전문의약품', '미상')}")
             
             # 추가 정보
@@ -273,9 +279,10 @@ class ImprovedCSVDirectSearch:
             if atc_code:
                 report_lines.append(f"   • ATC코드: {atc_code}")
             
-            english_name = item.get('제품영문명', '')
-            if english_name:
-                report_lines.append(f"   • 영문명: {english_name}")
+            # 첨가제를 마지막에 표시
+            additive = item.get('첨가제', '')
+            if additive:
+                report_lines.append(f"   • 첨가제: {additive}")
         
         if len(data) > display_count:
             report_lines.append(f"\n... 외 {len(data) - display_count}개 제품")
@@ -322,8 +329,36 @@ if __name__ == "__main__":
                 print(f"검색 시간: {result.get('search_time', 0)*1000:.2f}ms")
                 print(f"\n{result['report']}")
                 
+                # 계속할지 물어보기
+                while True:
+                    continue_choice = input("\n다른 질문을 하시겠습니까? (네/아니요): ").strip().lower()
+                    
+                    if continue_choice in ['네', 'yes', 'y', 'ㅇ']:
+                        print("\n" + "="*50)
+                        print("새로운 질문을 입력해주세요.")
+                        break
+                    elif continue_choice in ['아니요', 'no', 'n', 'ㄴ']:
+                        print("시스템을 종료합니다.")
+                        exit()
+                    else:
+                        print("'네' 또는 '아니요'로 답변해주세요.")
+                
             except Exception as e:
                 print(f"오류 발생: {e}")
+                
+                # 오류 발생 시에도 계속할지 물어보기
+                while True:
+                    continue_choice = input("\n다른 질문을 하시겠습니까? (네/아니요): ").strip().lower()
+                    
+                    if continue_choice in ['네', 'yes', 'y', 'ㅇ']:
+                        print("\n" + "="*50)
+                        print("새로운 질문을 입력해주세요.")
+                        break
+                    elif continue_choice in ['아니요', 'no', 'n', 'ㄴ']:
+                        print("시스템을 종료합니다.")
+                        exit()
+                    else:
+                        print("'네' 또는 '아니요'로 답변해주세요.")
     
     except Exception as e:
         print(f"시스템 초기화 중 오류 발생: {e}") 
